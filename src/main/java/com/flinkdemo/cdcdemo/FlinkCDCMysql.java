@@ -73,7 +73,7 @@ public class FlinkCDCMysql {
 
 
         FlinkKafkaProducer<String> loginUser = new FlinkKafkaProducer<>(
-                "login_user",
+                "Login-User",
                 new SimpleStringSchema(),
                 kafkaProperties
                 //FlinkKafkaProducer.Semantic.AT_LEAST_ONCE,

@@ -1,20 +1,31 @@
 package com.flinkdemo.cdcdemo;
 
+import com.alibaba.fastjson.JSONObject;
+import com.flinkdemo.entity.users;
 import com.flinkdemo.utils.ParseDataUtils;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.flink.streaming.connectors.redis.RedisSink;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription;
+import org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper;
+import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.IOException;
@@ -53,7 +64,7 @@ public class FlinkReadKafka {
         // 2. 配置 Kafka 消费者参数
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", "localhost:9092"); // Kafka 集群地址
-        properties.setProperty("group.id", "flink-consumer-group");       // 消费者组 ID
+        properties.setProperty("group.id", "flink-group");       // 消费者组 ID
         properties.setProperty("auto.offset.reset", "latest");            // 从最新位点开始消费
         properties.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -61,7 +72,7 @@ public class FlinkReadKafka {
 
 
         FlinkKafkaConsumer<String> loginUser = new FlinkKafkaConsumer<>(
-                "login_user",
+                "Login-User",
                 new SimpleStringSchema(),
                 properties
         );
@@ -71,17 +82,31 @@ public class FlinkReadKafka {
         // 5. 添加 Source 到数据流
         DataStreamSource<String> dataStream = env.addSource(loginUser);
 
-        // 6. 数据处理（示例：打印）
-        dataStream.print();
+        // 6.redis 配置
+        FlinkJedisPoolConfig config = new FlinkJedisPoolConfig.Builder()
+                .setHost("localhost").setPort(6379).build();
+        // 7. 定义 RedisSink,  将数据写入 Redis
+        dataStream.addSink(new RedisSink<>(config, new redisSink()));
 
-        // 解析数据
-        //stringDataStreamSource.filter(new FilterFunction<String>() {
-        //    @Override
-        //    public boolean filter(String s) throws Exception {
-        //        return ;
-        //    }
-        //});
-
+        // 8. 执行任务
         env.execute();
+    }
+
+    public static class redisSink implements RedisMapper<String> {
+        @Override
+        public RedisCommandDescription getCommandDescription() {
+            return new RedisCommandDescription(RedisCommand.HSET, "ods_users");
+        }
+
+        @Override
+        public String getKeyFromData(String data) {
+            JSONObject jsonObject = JSONObject.parseObject(data);
+            return "user_" + jsonObject.getString("id");
+        }
+
+        @Override
+        public String getValueFromData(String data) {
+            return data;
+        }
     }
 }
