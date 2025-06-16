@@ -1,22 +1,39 @@
 package com.flinkdemo.cdcdemo;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.kryo.util.ObjectMap;
+import com.flinkdemo.entity.users;
 import com.flinkdemo.utils.ParseDataUtils;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.eventtime.*;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.runtime.state.StateBackend;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.datastream.*;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
+import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.Properties;
 
 public class FlinkCDCMysql {
@@ -47,7 +64,7 @@ public class FlinkCDCMysql {
 
         env.setParallelism(1);
 
-        MySqlSource sourceFunction = MySqlSource.builder()
+        MySqlSource<String> sourceFunction = MySqlSource.<String>builder()
                 .hostname("localhost")
                 .port(3306)
                 .databaseList("ods")
@@ -61,7 +78,52 @@ public class FlinkCDCMysql {
 
 //        env.enableCheckpointing(3000);
 
-        DataStreamSource stringDataStreamSource =  env.fromSource(sourceFunction, WatermarkStrategy.noWatermarks(), "MySQL Source");
+        //设置时间语义
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+
+
+        DataStreamSource<String> stringDataStreamSource = env.fromSource(sourceFunction, WatermarkStrategy.forMonotonousTimestamps(), "mysql-cdc-source");
+
+        WatermarkStrategy<String> watermarkStrategy = WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofSeconds(5))
+                .withTimestampAssigner((event, ts)->{
+                    JSONObject jsonObject = JSON.parseObject(event);
+                    return jsonObject.getLong("ts_ms");
+                });
+        SingleOutputStreamOperator<String> sso = stringDataStreamSource.assignTimestampsAndWatermarks(watermarkStrategy);
+        SingleOutputStreamOperator<String> usersSingleOutputStreamOperator = sso.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public void flatMap(String value, Collector<String> out) throws Exception {
+                Object parse = JSONObject.parse(value);
+                out.collect(parse.toString());
+            }
+        });
+        // 1. 定义侧输出流标签
+        OutputTag<String> sideOutputTag = new OutputTag<String>("side-output") {};
+
+
+        SingleOutputStreamOperator<String> mainStream  = usersSingleOutputStreamOperator.keyBy(new KeySelector<String, String>() {
+                    @Override
+                    public String getKey(String value) throws Exception {
+                        users users = JSONObject.parseObject(value, users.class);
+                        return users.getId();
+                    }
+                }).window(SlidingEventTimeWindows.of(Time.seconds(30),Time.seconds(10)))
+                .allowedLateness(Time.seconds(5))
+                .sideOutputLateData(sideOutputTag)
+                .process(new ProcessWindowFunction<String, String, String, TimeWindow>() {
+
+                    @Override
+                    public void process(String s, ProcessWindowFunction<String, String, String, TimeWindow>.Context ctx, Iterable<String> iterable, Collector<String> collector) throws Exception {
+                            for (String user : iterable) {
+                                System.out.println("窗口[" + ctx.window() + "]");
+                                collector.collect("窗口[" + ctx.window() + "] 结果: " + user);
+                            }
+                    }
+                });
+
+        //获取迟到数据
+        DataStream<String> sideOutput = usersSingleOutputStreamOperator.getSideOutput(sideOutputTag);
+
 
         //stringDataStreamSource.print();
         // 输出到kafka
@@ -72,7 +134,7 @@ public class FlinkCDCMysql {
         kafkaProperties.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
 
-        FlinkKafkaProducer<String> loginUser = new FlinkKafkaProducer<>(
+        FlinkKafkaProducer<String> loginUser = new FlinkKafkaProducer<String>(
                 "Login-User",
                 new SimpleStringSchema(),
                 kafkaProperties
@@ -80,9 +142,19 @@ public class FlinkCDCMysql {
                 //3
         );
 
-        stringDataStreamSource.addSink(loginUser);
-        stringDataStreamSource.print();
+        FlinkKafkaProducer<String> laterUser = new FlinkKafkaProducer<String>(
+                "Later-User",
+                new SimpleStringSchema(),
+                kafkaProperties
+                //FlinkKafkaProducer.Semantic.AT_LEAST_ONCE,
+                //3
+        );
 
+        mainStream.addSink(loginUser);
+        sideOutput.addSink(laterUser);
+
+        mainStream.print("正常数据");
+        sideOutput.print("迟到数据");
         env.execute();
     }
 }

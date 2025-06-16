@@ -1,5 +1,6 @@
 package com.flinkdemo.cdcdemo;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.flinkdemo.entity.users;
 import com.flinkdemo.utils.ParseDataUtils;
@@ -29,6 +30,7 @@ import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Properties;
 
 /**
@@ -82,11 +84,17 @@ public class FlinkReadKafka {
         // 5. 添加 Source 到数据流
         DataStreamSource<String> dataStream = env.addSource(loginUser);
 
+        WatermarkStrategy<String> watermarkStrategy = WatermarkStrategy.<String>forBoundedOutOfOrderness(Duration.ofMillis(5000))
+                .withTimestampAssigner((event, ts)->{
+                    JSONObject jsonObject = JSON.parseObject(event);
+                    return jsonObject.getLong("ts_ms");
+                });
+        SingleOutputStreamOperator<String> stringSingleOutputStreamOperator = dataStream.assignTimestampsAndWatermarks(watermarkStrategy);
         // 6.redis 配置
         FlinkJedisPoolConfig config = new FlinkJedisPoolConfig.Builder()
                 .setHost("localhost").setPort(6379).build();
         // 7. 定义 RedisSink,  将数据写入 Redis
-        dataStream.addSink(new RedisSink<>(config, new redisSink()));
+        stringSingleOutputStreamOperator.addSink(new RedisSink<>(config, new redisSink()));
 
         // 8. 执行任务
         env.execute();
