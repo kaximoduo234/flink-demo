@@ -1,0 +1,180 @@
+{
+  "paragraphs": [
+    {
+      "text": "%flink.ssql\n-- 🎯 Flink Remote 模式测试\n-- 连接到 JobManager:6123\nSHOW CATALOGS;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:33:16.787",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:808)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:716)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:187)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:136)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:42)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:328)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:339)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.open(FlinkSqlInterpreter.java:43)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.open(FlinkStreamSqlInterpreter.java:41)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 8 more\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 13 more\nCaused by: org.apache.flink.table.api.TableException: Could not instantiate the executor. Make sure a planner module is on the classpath\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:359)\n\tat org.apache.zeppelin.flink.Flink117Shims.createPlannerAndExecutor(Flink117Shims.java:370)\n\tat org.apache.zeppelin.flink.Flink117Shims.createJavaBlinkStreamTableEnvironment(Flink117Shims.java:168)\n\tat org.apache.zeppelin.flink.TableEnvFactory.createJavaBlinkBatchTableEnvironment(TableEnvFactory.java:163)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.createTableEnvs(FlinkScalaInterpreter.scala:443)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.open(FlinkScalaInterpreter.scala:126)\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:72)\n\t... 14 more\nCaused by: org.apache.flink.table.api.ValidationException: Multiple factories for identifier \u0027default\u0027 that implement \u0027org.apache.flink.table.delegation.ExecutorFactory\u0027 found in the classpath.\n\nAmbiguous factory classes are:\n\norg.apache.flink.table.planner.delegation.DefaultExecutorFactory\norg.apache.flink.table.planner.loader.DelegateExecutorFactory\n\tat org.apache.flink.table.factories.FactoryUtil.discoverFactory(FactoryUtil.java:561)\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:350)\n\t... 20 more\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000001",
+      "id": "paragraph_1640000000000_000000001",
+      "dateCreated": "2025-06-19 11:05:00.000",
+      "dateStarted": "2025-06-19 09:33:16.809",
+      "dateFinished": "2025-06-19 09:33:29.152",
+      "status": "ERROR"
+    },
+    {
+      "text": "%flink.ssql\n-- 检查 Flink 集群信息\nSHOW DATABASES;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:33:49.651",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:808)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:716)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:187)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:136)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:42)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:328)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:339)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.open(FlinkSqlInterpreter.java:43)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.open(FlinkStreamSqlInterpreter.java:41)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 8 more\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 13 more\nCaused by: org.apache.flink.table.api.TableException: Could not instantiate the executor. Make sure a planner module is on the classpath\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:359)\n\tat org.apache.zeppelin.flink.Flink117Shims.createPlannerAndExecutor(Flink117Shims.java:370)\n\tat org.apache.zeppelin.flink.Flink117Shims.createJavaBlinkStreamTableEnvironment(Flink117Shims.java:168)\n\tat org.apache.zeppelin.flink.TableEnvFactory.createJavaBlinkBatchTableEnvironment(TableEnvFactory.java:163)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.createTableEnvs(FlinkScalaInterpreter.scala:443)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.open(FlinkScalaInterpreter.scala:126)\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:72)\n\t... 14 more\nCaused by: org.apache.flink.table.api.ValidationException: Multiple factories for identifier \u0027default\u0027 that implement \u0027org.apache.flink.table.delegation.ExecutorFactory\u0027 found in the classpath.\n\nAmbiguous factory classes are:\n\norg.apache.flink.table.planner.delegation.DefaultExecutorFactory\norg.apache.flink.table.planner.loader.DelegateExecutorFactory\n\tat org.apache.flink.table.factories.FactoryUtil.discoverFactory(FactoryUtil.java:561)\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:350)\n\t... 20 more\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000002",
+      "id": "paragraph_1640000000000_000000002",
+      "dateCreated": "2025-06-19 11:05:00.000",
+      "dateStarted": "2025-06-19 09:33:49.656",
+      "dateFinished": "2025-06-19 09:33:51.051",
+      "status": "ERROR"
+    },
+    {
+      "text": "%flink.ssql\n-- 创建测试数据源\nCREATE TABLE heartbeat_source (\n    ts TIMESTAMP(3),\n    message STRING,\n    WATERMARK FOR ts AS ts - INTERVAL \u00271\u0027 SECOND\n) WITH (\n    \u0027connector\u0027 \u003d \u0027datagen\u0027,\n    \u0027rows-per-second\u0027 \u003d \u00271\u0027,\n    \u0027fields.message.length\u0027 \u003d \u002720\u0027\n);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 11:05:00.000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000003",
+      "id": "paragraph_1640000000000_000000003",
+      "dateCreated": "2025-06-19 11:05:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql\n-- 测试实时查询\nSELECT \n    ts,\n    message,\n    CURRENT_TIMESTAMP AS query_time\nFROM heartbeat_source \nLIMIT 3;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:35:13.471",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:808)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:716)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:187)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:136)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:42)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:328)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:339)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.open(FlinkSqlInterpreter.java:43)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.open(FlinkStreamSqlInterpreter.java:41)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 8 more\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: Fail to open FlinkInterpreter\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 13 more\nCaused by: org.apache.flink.table.api.TableException: Could not instantiate the executor. Make sure a planner module is on the classpath\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:359)\n\tat org.apache.zeppelin.flink.Flink117Shims.createPlannerAndExecutor(Flink117Shims.java:370)\n\tat org.apache.zeppelin.flink.Flink117Shims.createJavaBlinkStreamTableEnvironment(Flink117Shims.java:168)\n\tat org.apache.zeppelin.flink.TableEnvFactory.createJavaBlinkBatchTableEnvironment(TableEnvFactory.java:163)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.createTableEnvs(FlinkScalaInterpreter.scala:443)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.open(FlinkScalaInterpreter.scala:126)\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:72)\n\t... 14 more\nCaused by: org.apache.flink.table.api.ValidationException: Multiple factories for identifier \u0027default\u0027 that implement \u0027org.apache.flink.table.delegation.ExecutorFactory\u0027 found in the classpath.\n\nAmbiguous factory classes are:\n\norg.apache.flink.table.planner.delegation.DefaultExecutorFactory\norg.apache.flink.table.planner.loader.DelegateExecutorFactory\n\tat org.apache.flink.table.factories.FactoryUtil.discoverFactory(FactoryUtil.java:561)\n\tat org.apache.zeppelin.flink.Flink117Shims.lookupExecutor(Flink117Shims.java:350)\n\t... 20 more\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000004",
+      "id": "paragraph_1640000000000_000000004",
+      "dateCreated": "2025-06-19 11:05:00.000",
+      "dateStarted": "2025-06-19 09:35:13.479",
+      "dateFinished": "2025-06-19 09:35:16.616",
+      "status": "ERROR"
+    },
+    {
+      "text": "%flink.ssql\n",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:35:13.478",
+      "progress": 0,
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750325713478_602692136",
+      "id": "paragraph_1750325713478_602692136",
+      "dateCreated": "2025-06-19 09:35:13.478",
+      "status": "READY"
+    }
+  ],
+  "name": "Final-Flink-Remote-Test",
+  "id": "FINAL123",
+  "defaultInterpreterGroup": "flink",
+  "version": "0.12.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default",
+    "personalizedMode": "false"
+  },
+  "info": {}
+}

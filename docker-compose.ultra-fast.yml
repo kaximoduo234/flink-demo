@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # ⚡ JobManager - 极速配置
+  jobmanager:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 1
+        jobmanager.memory.process.size: 512m
+    volumes:
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+
+  # ⚡ TaskManager - 极速配置
+  taskmanager:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: taskmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        parallelism.default: 1
+        taskmanager.memory.process.size: 512m
+    volumes:
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+
+  # ⚡ SQL Gateway - 极速配置
+  sql-gateway:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: sql-gateway
+    command: ["bin/sql-gateway.sh", "start-foreground"]
+    ports:
+      - "8083:8083"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        sql-gateway.endpoint.rest.address: 0.0.0.0
+        sql-gateway.endpoint.rest.port: 8083
+        execution.target: remote
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
+        rest.port: 8081
+        parallelism.default: 1
+    volumes:
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+
+networks:
+  flink-network:
+    driver: bridge 

@@ -1,0 +1,202 @@
+version: '3.8'
+
+services:
+  # 🧪 JobManager - 测试环境优化配置
+  jobmanager:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: jobmanager
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 8
+        parallelism.default: 1
+        jobmanager.memory.process.size: 1g
+        execution.checkpointing.interval: 60s
+        state.backend: filesystem
+        state.checkpoints.dir: file:///opt/flink/checkpoints
+    volumes:
+      - ./target:/opt/flink/usrlib:ro
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+      - ./flink-jars:/opt/flink/lib/connectors:ro
+    networks:
+      - flink-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]  # 🟢 简化检查
+      interval: 3s       # 🟢 快速检查
+      timeout: 2s        # 🟢 快速超时
+      retries: 2         # 🟢 减少重试
+      start_period: 8s   # 🟢 短等待期
+
+  # 🧪 TaskManager - 测试环境配置
+  taskmanager:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: taskmanager
+    depends_on:
+      jobmanager:
+        condition: service_healthy  # 🟢 保持依赖，但优化时间
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 8
+        parallelism.default: 1
+        taskmanager.memory.process.size: 1g
+    volumes:
+      - ./target:/opt/flink/usrlib:ro
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+      - ./flink-jars:/opt/flink/lib/connectors:ro
+    networks:
+      - flink-network
+
+  # 🧪 SQL Gateway - 测试环境配置
+  sql-gateway:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: sql-gateway
+    depends_on:
+      jobmanager:
+        condition: service_healthy  # 🟢 等待JobManager就绪
+      taskmanager:
+        condition: service_started  # 🟢 TaskManager只需启动
+    command: ["bin/sql-gateway.sh", "start-foreground"]
+    ports:
+      - "8083:8083"
+    networks:
+      - flink-network
+    volumes:
+      - ./target:/opt/flink/usrlib:ro
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+      - ./flink-jars:/opt/flink/lib/connectors:ro
+      - ./scripts:/opt/scripts:ro
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        sql-gateway.endpoint.rest.address: 0.0.0.0
+        sql-gateway.endpoint.rest.port: 8083
+        execution.target: remote
+        jobmanager.rpc.address: jobmanager
+        jobmanager.rpc.port: 6123
+        rest.address: jobmanager
+        rest.port: 8081
+        execution.runtime-mode: streaming
+        parallelism.default: 1
+        table.exec.sink.upsert-materialize: NONE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/v1/info"]
+      interval: 3s       # 🟢 快速检查
+      timeout: 2s        # 🟢 快速超时
+      retries: 2         # 🟢 减少重试
+      start_period: 5s   # 🟢 短等待期
+
+  # 🧪 MySQL - 测试数据库
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: flink_demo
+      MYSQL_USER: flink
+      MYSQL_PASSWORD: flink123
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - flink-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 3s
+      timeout: 2s
+      retries: 3
+      start_period: 10s
+
+  # 🧪 Redis - 缓存服务
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - flink-network
+
+  # 🧪 StarRocks - 分析数据库
+  starrocks:
+    image: starrocks/allin1-ubuntu:3.5.0
+    container_name: starrocks
+    ports:
+      - "8030:8030"
+      - "9030:9030"
+      - "8040:8040"
+    networks:
+      - flink-network
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./starrocks-storage:/opt/starrocks-storage
+    healthcheck:
+      test: ["CMD", "mysql", "-h127.0.0.1", "-P9030", "-uroot", "-e", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s  # StarRocks 启动较慢
+
+  # 🧪 Catalog 初始化 - 测试环境自动化
+  catalog-init:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: catalog-init
+    depends_on:
+      sql-gateway:
+        condition: service_healthy  # 🟢 等待SQL Gateway就绪
+    command: ["/opt/scripts/init_catalogs.sh"]
+    volumes:
+      - ./scripts:/opt/scripts:ro
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+    restart: "no"
+
+networks:
+  flink-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  paimon-warehouse:
+  starrocks-storage: 

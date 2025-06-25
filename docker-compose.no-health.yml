@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # 🚫 JobManager - 无健康检查
+  jobmanager:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: no-health-jobmanager
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 1
+        jobmanager.memory.process.size: 1g
+    volumes:
+      - ./paimon-warehouse:/warehouse
+    # 🚫 健康检查已注释
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8081"]
+    #   interval: 3s
+    #   timeout: 2s
+    #   retries: 2
+    #   start_period: 8s
+
+  # 🚫 TaskManager - 无依赖等待
+  taskmanager:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: no-health-taskmanager
+    # 🚫 依赖已注释 - 并行启动
+    # depends_on:
+    #   jobmanager:
+    #     condition: service_healthy
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 1
+        taskmanager.memory.process.size: 1g
+    volumes:
+      - ./paimon-warehouse:/warehouse
+
+  # 🚫 SQL Gateway - 无依赖等待
+  sql-gateway:
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: no-health-sql-gateway
+    # 🚫 依赖已注释 - 并行启动
+    # depends_on:
+    #   jobmanager:
+    #     condition: service_healthy
+    command: ["bin/sql-gateway.sh", "start-foreground"]
+    ports:
+      - "8083:8083"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        sql-gateway.endpoint.rest.address: 0.0.0.0
+        sql-gateway.endpoint.rest.port: 8083
+        execution.target: remote
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
+        rest.port: 8081
+        parallelism.default: 1 

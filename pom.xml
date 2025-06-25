@@ -104,6 +104,11 @@
         </dependency>
         <dependency>
             <groupId>com.ververica</groupId>
+            <artifactId>flink-cdc-common</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
             <version>3.0.1</version>
         </dependency>
@@ -258,7 +263,7 @@
 
     <build>
         <plugins>
-            <!-- �� Java 17开发 + Java 17运行时 编译策略 -->
+            <!-- 🔥 Java 17开发 + Java 17运行时 编译策略 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

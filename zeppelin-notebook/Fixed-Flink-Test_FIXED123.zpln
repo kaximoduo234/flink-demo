@@ -1,0 +1,165 @@
+{
+  "paragraphs": [
+    {
+      "text": "%flink.ssql\n-- 🎉 Flink 修复后的测试 - opt 目录问题已解决\nSHOW CATALOGS;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 05:13:11.168",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "org.apache.zeppelin.interpreter.InterpreterException: org.apache.zeppelin.interpreter.InterpreterException: java.lang.NoClassDefFoundError: org/apache/flink/table/client/util/ClientWrapperClassLoader\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:808)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:716)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:187)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:136)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:42)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: org.apache.zeppelin.interpreter.InterpreterException: java.lang.NoClassDefFoundError: org/apache/flink/table/client/util/ClientWrapperClassLoader\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:77)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:328)\n\tat org.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:339)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.open(FlinkSqlInterpreter.java:43)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.open(FlinkStreamSqlInterpreter.java:41)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 8 more\nCaused by: java.lang.NoClassDefFoundError: org/apache/flink/table/client/util/ClientWrapperClassLoader\n\tat java.base/java.lang.Class.forName0(Native Method)\n\tat java.base/java.lang.Class.forName(Class.java:315)\n\tat org.apache.zeppelin.flink.FlinkShims.loadShims(FlinkShims.java:71)\n\tat org.apache.zeppelin.flink.FlinkShims.getInstance(FlinkShims.java:89)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.initFlinkConfig(FlinkScalaInterpreter.scala:160)\n\tat org.apache.zeppelin.flink.FlinkScalaInterpreter.open(FlinkScalaInterpreter.scala:124)\n\tat org.apache.zeppelin.flink.FlinkInterpreter.open(FlinkInterpreter.java:72)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:71)\n\t... 13 more\nCaused by: java.lang.ClassNotFoundException: org.apache.flink.table.client.util.ClientWrapperClassLoader\n\tat java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:581)\n\tat java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:178)\n\tat java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)\n\t... 21 more\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000001",
+      "id": "paragraph_1640000000000_000000001",
+      "dateCreated": "2025-06-19 11:35:00.000",
+      "dateStarted": "2025-06-19 05:13:11.207",
+      "dateFinished": "2025-06-19 05:13:15.003",
+      "status": "ERROR"
+    },
+    {
+      "text": "%flink.ssql\n-- 查看可用数据库\nSHOW DATABASES;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 11:35:00.000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000002",
+      "id": "paragraph_1640000000000_000000002",
+      "dateCreated": "2025-06-19 11:35:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql\n-- 创建数据生成器表（修复后应该工作正常）\nCREATE TABLE test_datagen (\n    id INT,\n    name STRING,\n    age INT,\n    event_time TIMESTAMP(3),\n    WATERMARK FOR event_time AS event_time - INTERVAL \u00275\u0027 SECOND\n) WITH (\n    \u0027connector\u0027 \u003d \u0027datagen\u0027,\n    \u0027rows-per-second\u0027 \u003d \u00272\u0027,\n    \u0027fields.id.kind\u0027 \u003d \u0027sequence\u0027,\n    \u0027fields.id.start\u0027 \u003d \u00271\u0027,\n    \u0027fields.id.end\u0027 \u003d \u0027100\u0027,\n    \u0027fields.name.length\u0027 \u003d \u002710\u0027,\n    \u0027fields.age.min\u0027 \u003d \u002718\u0027,\n    \u0027fields.age.max\u0027 \u003d \u002765\u0027\n);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 11:35:00.000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql"
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000003",
+      "id": "paragraph_1640000000000_000000003",
+      "dateCreated": "2025-06-19 11:35:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql\n-- 查询生成的数据\nSELECT * FROM test_datagen LIMIT 5;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 11:35:00.000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql"
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000004",
+      "id": "paragraph_1640000000000_000000004",
+      "dateCreated": "2025-06-19 11:35:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql\n-- 实时聚合测试\nSELECT \n    COUNT(*) as total_count,\n    AVG(age) as avg_age,\n    MIN(age) as min_age,\n    MAX(age) as max_age\nFROM test_datagen;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 11:35:00.000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql"
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1640000000000_000000005",
+      "id": "paragraph_1640000000000_000000005",
+      "dateCreated": "2025-06-19 11:35:00.000",
+      "status": "READY"
+    }
+  ],
+  "name": "Fixed-Flink-Test",
+  "id": "FIXED123",
+  "defaultInterpreterGroup": "flink",
+  "version": "0.12.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default",
+    "personalizedMode": "false"
+  },
+  "info": {}
+}

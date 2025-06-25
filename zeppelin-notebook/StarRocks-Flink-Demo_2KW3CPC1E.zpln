@@ -1,0 +1,427 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# StarRocks + Flink 实时数仓演示\n\n本 Notebook 演示如何使用 Zeppelin 连接 StarRocks 和 Flink，构建实时数据分析场景。\n\n## 服务配置\n- StarRocks: `starrocks:9030`\n- Flink JobManager: `jobmanager:8081`\n- SQL Gateway: `sql-gateway:8083`",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 16:15:40.197",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionSupport": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9.0,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eStarRocks + Flink 实时数仓演示\u003c/h1\u003e\n\u003cp\u003e本 Notebook 演示如何使用 Zeppelin 连接 StarRocks 和 Flink，构建实时数据分析场景。\u003c/p\u003e\n\u003ch2\u003e服务配置\u003c/h2\u003e\n\u003cul\u003e\n\u003cli\u003eStarRocks: \u003ccode\u003estarrocks:9030\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eFlink JobManager: \u003ccode\u003ejobmanager:8081\u003c/code\u003e\u003c/li\u003e\n\u003cli\u003eSQL Gateway: \u003ccode\u003esql-gateway:8083\u003c/code\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814269_439998604",
+      "id": "paragraph_1640000000000_000000001",
+      "dateCreated": "2025-06-18 15:16:54.269",
+      "dateStarted": "2025-06-18 16:15:40.197",
+      "dateFinished": "2025-06-18 16:15:42.836",
+      "status": "FINISHED"
+    },
+    {
+      "text": "\n%jdbc(starrocks)\nCREATE DATABASE IF NOT EXISTS analytics;\n\nUSE analytics;\n\nCREATE TABLE dws_user_stats (\n    date_key DATE,\n    gender VARCHAR(16),\n    age_group VARCHAR(16),\n    city VARCHAR(64),\n    user_count BIGINT SUM,\n    new_user_count BIGINT SUM,\n    active_user_count BIGINT SUM,\n    latest_ts DATETIME MAX\n)\nAGGREGATE KEY(date_key, gender, age_group, city)\nDISTRIBUTED BY HASH(date_key) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" \u003d \"1\"\n);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 16:20:53.107",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Unknown database \u0027demo\u0027"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814273_1803814261",
+      "id": "paragraph_1640000000000_000000002",
+      "dateCreated": "2025-06-18 15:16:54.273",
+      "dateStarted": "2025-06-19 16:20:53.110",
+      "dateFinished": "2025-06-19 16:20:53.124",
+      "status": "ERROR"
+    },
+    {
+      "text": "%jdbc(starrocks)\nCREATE DATABASE IF NOT EXISTS analytics;\n\nUSE analytics;\n\nCREATE TABLE dws_user_stats (\n    date_key DATE,\n    gender VARCHAR(16),\n    age_group VARCHAR(16),\n    city VARCHAR(64),\n    user_count BIGINT SUM,\n    new_user_count BIGINT SUM,\n    active_user_count BIGINT SUM,\n    latest_ts DATETIME MAX\n)\nAGGREGATE KEY(date_key, gender, age_group, city)\nDISTRIBUTED BY HASH(date_key) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" \u003d \"1\"\n);\n",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 16:19:27.969",
+      "progress": 0,
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true,
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionSupport": true
+        }
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Unknown database \u0027demo\u0027"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750349931761_105634053",
+      "id": "paragraph_1750349931761_105634053",
+      "dateCreated": "2025-06-19 16:18:51.761",
+      "dateStarted": "2025-06-19 16:19:27.972",
+      "dateFinished": "2025-06-19 16:19:27.982",
+      "status": "ERROR"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 创建示例数据表\nCREATE DATABASE IF NOT EXISTS demo;\nUSE demo;\n\nCREATE TABLE IF NOT EXISTS user_behavior (\n    user_id INT NOT NULL,\n    item_id INT NOT NULL,\n    behavior STRING,\n    timestamp DATETIME,\n    ts BIGINT\n) ENGINE\u003dOLAP\nDUPLICATE KEY(user_id, item_id)\nDISTRIBUTED BY HASH(user_id) BUCKETS 8\nPROPERTIES(\n    \u0027replication_num\u0027 \u003d \u00271\u0027\n);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:55:23.864",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 0\n\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 0\n\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 0\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814273_1036946307",
+      "id": "paragraph_1640000000000_000000003",
+      "dateCreated": "2025-06-18 15:16:54.273",
+      "dateStarted": "2025-06-19 09:55:23.867",
+      "dateFinished": "2025-06-19 09:55:24.194",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 插入示例数据\nUSE demo;\nINSERT INTO user_behavior VALUES \n(1001, 2001, \u0027click\u0027, \u00272025-06-18 10:00:00\u0027, 1718694000000),\n(1001, 2002, \u0027buy\u0027, \u00272025-06-18 10:05:00\u0027, 1718694300000),\n(1002, 2001, \u0027click\u0027, \u00272025-06-18 10:10:00\u0027, 1718694600000),\n(1002, 2003, \u0027like\u0027, \u00272025-06-18 10:15:00\u0027, 1718694900000),\n(1003, 2001, \u0027click\u0027, \u00272025-06-18 10:20:00\u0027, 1718695200000);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:55:28.320",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 0\n\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 5\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814274_56222726",
+      "id": "paragraph_1640000000000_000000004",
+      "dateCreated": "2025-06-18 15:16:54.274",
+      "dateStarted": "2025-06-19 09:55:28.324",
+      "dateFinished": "2025-06-19 09:55:28.807",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 数据分析查询\nUSE demo;\nSELECT \n    behavior,\n    COUNT(*) as behavior_count,\n    COUNT(DISTINCT user_id) as unique_users\nFROM user_behavior \nGROUP BY behavior\nORDER BY behavior_count DESC;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 09:55:54.932",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {
+          "1": {
+            "graph": {
+              "mode": "multiBarChart",
+              "height": 300.0,
+              "optionOpen": false,
+              "setting": {
+                "multiBarChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default",
+                  "stacked": false
+                },
+                "lineChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default",
+                  "forceY": false,
+                  "lineWithFocus": false,
+                  "isDateFormat": false,
+                  "dateFormat": ""
+                },
+                "stackedAreaChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default",
+                  "style": "stack"
+                },
+                "scatterChart": {}
+              },
+              "keys": [
+                {
+                  "name": "behavior",
+                  "index": 0.0,
+                  "aggr": "sum"
+                }
+              ],
+              "groups": [],
+              "values": [
+                {
+                  "name": "behavior_count",
+                  "index": 1.0,
+                  "aggr": "sum"
+                }
+              ]
+            }
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Query executed successfully. Affected rows : 0\n"
+          },
+          {
+            "type": "TABLE",
+            "data": "behavior\tbehavior_count\tunique_users\nclick\t3\t3\nlike\t1\t1\nbuy\t1\t1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814274_2123376829",
+      "id": "paragraph_1640000000000_000000005",
+      "dateCreated": "2025-06-18 15:16:54.274",
+      "dateStarted": "2025-06-19 09:55:45.768",
+      "dateFinished": "2025-06-19 09:55:45.819",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%md\n## Flink SQL 集成\n\n下面演示如何在 Zeppelin 中使用 Flink SQL 进行流处理：",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 02:36:38.807",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionSupport": false
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eFlink SQL 集成\u003c/h2\u003e\n\u003cp\u003e下面演示如何在 Zeppelin 中使用 Flink SQL 进行流处理：\u003c/p\u003e\n\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814274_1240293247",
+      "id": "paragraph_1640000000000_000000006",
+      "dateCreated": "2025-06-18 15:16:54.274",
+      "dateStarted": "2025-06-19 02:36:38.805",
+      "dateFinished": "2025-06-19 02:36:40.888",
+      "status": "FINISHED"
+    },
+    {
+      "text": "%flink.ssql\n-- 查看 Flink 环境信息\nSHOW CATALOGS;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 02:48:16.728",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/sql",
+        "fontSize": 9.0,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "java.lang.NullPointerException\n\tat java.base/java.util.Arrays.stream(Arrays.java:5614)\n\tat org.apache.zeppelin.interpreter.launcher.FlinkInterpreterLauncher.chooseFlinkAppJar(FlinkInterpreterLauncher.java:140)\n\tat org.apache.zeppelin.interpreter.launcher.FlinkInterpreterLauncher.buildEnvFromProperties(FlinkInterpreterLauncher.java:85)\n\tat org.apache.zeppelin.interpreter.launcher.StandardInterpreterLauncher.launchDirectly(StandardInterpreterLauncher.java:76)\n\tat org.apache.zeppelin.interpreter.launcher.InterpreterLauncher.launch(InterpreterLauncher.java:106)\n\tat org.apache.zeppelin.interpreter.InterpreterSetting.createInterpreterProcess(InterpreterSetting.java:864)\n\tat org.apache.zeppelin.interpreter.ManagedInterpreterGroup.getOrCreateInterpreterProcess(ManagedInterpreterGroup.java:69)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.getOrCreateInterpreterProcess(RemoteInterpreter.java:106)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.internal_create(RemoteInterpreter.java:156)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.open(RemoteInterpreter.java:128)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.getFormType(RemoteInterpreter.java:273)\n\tat org.apache.zeppelin.notebook.Paragraph.jobRun(Paragraph.java:428)\n\tat org.apache.zeppelin.notebook.Paragraph.jobRun(Paragraph.java:68)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:187)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:136)\n\tat org.apache.zeppelin.scheduler.RemoteScheduler$JobRunner.run(RemoteScheduler.java:186)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750259814274_163808922",
+      "id": "paragraph_1640000000000_000000007",
+      "dateCreated": "2025-06-18 15:16:54.274",
+      "dateStarted": "2025-06-19 02:48:16.732",
+      "dateFinished": "2025-06-19 02:48:16.733",
+      "status": "ERROR"
+    },
+    {
+      "text": "%flink.ssql\n",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-19 02:36:46.393",
+      "progress": 0,
+      "config": {},
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1750300606392_1947022370",
+      "id": "paragraph_1750300606392_1947022370",
+      "dateCreated": "2025-06-19 02:36:46.393",
+      "status": "READY"
+    }
+  ],
+  "name": "StarRocks-Flink-Demo",
+  "id": "2KW3CPC1E",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.12.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}

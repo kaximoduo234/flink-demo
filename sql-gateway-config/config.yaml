@@ -1,0 +1,22 @@
+# Flink SQL Gateway 配置文件 (config.yaml)
+# 这是 Flink 标准配置文件格式
+
+# JobManager 配置
+jobmanager.rpc.address: jobmanager
+jobmanager.rpc.port: 6123
+
+# SQL Gateway 端点配置  
+sql-gateway.endpoint.rest.address: 0.0.0.0
+sql-gateway.endpoint.rest.port: 8083
+
+# 执行配置
+execution.target: remote
+execution.runtime-mode: streaming
+parallelism.default: 1
+
+# 内存配置
+env.java.opts: "-Xms512m -Xmx1g"
+
+# REST API 配置 - 连接到 JobManager
+rest.address: jobmanager
+rest.port: 8081 

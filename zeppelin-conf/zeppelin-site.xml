@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- Zeppelin 基础配置 -->
+  <property>
+    <name>zeppelin.server.addr</name>
+    <value>0.0.0.0</value>
+  </property>
+  
+  <property>
+    <name>zeppelin.server.port</name>
+    <value>8080</value>
+  </property>
+  
+  <!-- Flink 集成配置 -->
+  <property>
+    <name>zeppelin.interpreter.group.order</name>
+    <value>flink,jdbc,python,shell</value>
+  </property>
+  
+  <!-- 用户认证配置 (可选) -->
+  <property>
+    <name>zeppelin.anonymous.allowed</name>
+    <value>true</value>
+  </property>
+  
+  <!-- Notebook 存储配置 -->
+  <property>
+    <name>zeppelin.notebook.dir</name>
+    <value>/opt/zeppelin/notebook</value>
+  </property>
+  
+  <!-- 解释器设置 -->
+  <property>
+    <name>zeppelin.interpreter.dir</name>
+    <value>/opt/zeppelin/interpreter</value>
+  </property>
+</configuration> 

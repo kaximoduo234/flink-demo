@@ -1,0 +1,209 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# StarRocks + Flink 实时数仓演示\n\n本 Notebook 演示如何使用 Zeppelin 连接 StarRocks 和 Flink，构建实时数据分析场景。\n\n## 服务配置\n- StarRocks: `starrocks:9030`\n- Flink JobManager: `jobmanager:8081`\n- SQL Gateway: `sql-gateway:8083`",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown"
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<h1>StarRocks + Flink 实时数仓演示</h1>\n<p>本 Notebook 演示如何使用 Zeppelin 连接 StarRocks 和 Flink，构建实时数据分析场景。</p>\n<h2>服务配置</h2>\n<ul>\n<li>StarRocks: <code>starrocks:9030</code></li>\n<li>Flink JobManager: <code>jobmanager:8081</code></li>\n<li>SQL Gateway: <code>sql-gateway:8083</code></li>\n</ul>\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000001",
+      "id": "paragraph_1640000000000_000000001",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%jdbc(starrocks)\nSHOW DATABASES;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000002",
+      "id": "paragraph_1640000000000_000000002",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 创建示例数据表\nCREATE DATABASE IF NOT EXISTS demo;\nUSE demo;\n\nCREATE TABLE IF NOT EXISTS user_behavior (\n    user_id INT NOT NULL,\n    item_id INT NOT NULL,\n    behavior STRING,\n    timestamp DATETIME,\n    ts BIGINT\n) ENGINE=OLAP\nDUPLICATE KEY(user_id, item_id)\nDISTRIBUTED BY HASH(user_id) BUCKETS 8\nPROPERTIES(\n    'replication_num' = '1'\n);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000003",
+      "id": "paragraph_1640000000000_000000003",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 插入示例数据\nUSE demo;\nINSERT INTO user_behavior VALUES \n(1001, 2001, 'click', '2025-06-18 10:00:00', 1718694000000),\n(1001, 2002, 'buy', '2025-06-18 10:05:00', 1718694300000),\n(1002, 2001, 'click', '2025-06-18 10:10:00', 1718694600000),\n(1002, 2003, 'like', '2025-06-18 10:15:00', 1718694900000),\n(1003, 2001, 'click', '2025-06-18 10:20:00', 1718695200000);",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000004",
+      "id": "paragraph_1640000000000_000000004",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%jdbc(starrocks)\n-- 数据分析查询\nUSE demo;\nSELECT \n    behavior,\n    COUNT(*) as behavior_count,\n    COUNT(DISTINCT user_id) as unique_users\nFROM user_behavior \nGROUP BY behavior\nORDER BY behavior_count DESC;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000005",
+      "id": "paragraph_1640000000000_000000005",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%md\n## Flink SQL 集成\n\n下面演示如何在 Zeppelin 中使用 Flink SQL 进行流处理：",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown"
+        },
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000006",
+      "id": "paragraph_1640000000000_000000006",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    },
+    {
+      "text": "%flink.ssql\n-- 查看 Flink 环境信息\nSHOW CATALOGS;",
+      "user": "anonymous",
+      "dateUpdated": "2025-06-18 22:52:00.000",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "sql",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1640000000000_000000007",
+      "id": "paragraph_1640000000000_000000007",
+      "dateCreated": "2025-06-18 22:52:00.000",
+      "status": "READY"
+    }
+  ],
+  "name": "StarRocks-Flink-Demo",
+  "id": "starrock-flink-demo",
+  "defaultInterpreterGroup": "jdbc",
+  "version": "0.12.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+} 
