@@ -86,7 +86,7 @@ A comprehensive Apache Flink streaming platform demo with pre-integrated Apache 
 #### 🎯 Major Upgrades
 - **Apache Flink**: 1.17.1 → **1.20.1** (Latest stable release)
 - **Java Runtime**: 11 → **17** (Enhanced performance and security)
-- **Apache Paimon**: 0.8.2 → **1.0.0** (Production-ready features)
+- **Apache Paimon**: 0.8.2 → **1.0.0** (Production-ready features, 实际使用版本)
 
 #### 🔧 Technical Improvements
 - **Modern Configuration API**: Uses new `Configuration` + `ConfigOptions` pattern
@@ -378,7 +378,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 #### 🎯 重大升级
 - **Apache Flink**: 1.17.1 → **1.20.1** (最新稳定版)
 - **Java 运行时**: 11 → **17** (性能和安全性提升)
-- **Apache Paimon**: 0.8.2 → **1.0.0** (生产就绪特性)
+- **Apache Paimon**: 0.8.2 → **1.0.0** (生产就绪特性，实际使用版本)
 
 #### 🔧 技术改进
 - **现代化配置 API**: 使用新的 `Configuration` + `ConfigOptions` 模式
@@ -811,7 +811,11 @@ services:
 
 ### 📞 支持
 
-- 📚 [文档](./DEPLOYMENT.md)
+- 📁 [项目结构](./PROJECT_STRUCTURE.md)
+- 📚 [部署文档](./DEPLOYMENT.md)
+- 🧪 [测试指南](./TESTING_GUIDE.md)
+- 📖 [Flink SQL 指南](./FLINK_SQL_COMMANDS_GUIDE.md)
+- 🔧 [贡献指南](./CONTRIBUTING.md)
 - 🐛 [问题反馈](https://github.com/yourusername/flink-demo/issues)
 - 💬 [讨论区](https://github.com/yourusername/flink-demo/discussions)
 
@@ -830,7 +834,7 @@ services:
 #### 🚀 核心组件升级
 - **Apache Flink**: 1.17.1 → 1.20.1
 - **Java 运行时**: 11 → 17  
-- **Apache Paimon**: 0.8.2 → 1.0.0
+- **Apache Paimon**: 0.8.2 → 1.0.0 (实际使用版本)
 - **连接器版本**: 更新至最新兼容版本
 
 #### 🆕 新功能支持

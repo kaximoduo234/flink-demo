@@ -1,0 +1,72 @@
+################################################################################
+# Flink SQL Gateway 配置文件 - 预配置Paimon Catalog
+################################################################################
+
+# SQL Gateway 端点配置
+sql-gateway:
+  endpoint:
+    rest:
+      address: 0.0.0.0
+      port: 8083
+      bind-address: 0.0.0.0
+
+# 执行配置
+execution:
+  target: remote
+
+# Flink 集群配置  
+jobmanager:
+  rpc:
+    address: jobmanager
+    port: 6123
+  memory:
+    process:
+      size: 2048m
+
+taskmanager:
+  numberOfTaskSlots: 4
+  memory:
+    process:
+      size: 4096m
+
+# REST API 配置
+rest:
+  address: 0.0.0.0
+  port: 8081
+  bind-address: 0.0.0.0
+
+# Parallelism 配置
+parallelism:
+  default: 1
+
+# 状态后端配置
+state:
+  backend: rocksdb
+  savepoints:
+    dir: file:///opt/flink/savepoints
+  checkpoints:
+    dir: file:///opt/flink/checkpoints
+
+# 表格环境配置
+table:
+  sql-dialect: default
+  exec:
+    sink:
+      upsert-materialize: NONE
+
+# 🔥 预配置 Catalogs - 启动时自动加载
+table:
+  catalog-store:
+    kind: generic_in_memory
+
+# 预定义的 Catalogs 配置
+catalogs:
+  # Paimon 数据湖 Catalog (自动加载)
+  paimon_catalog:
+    type: paimon
+    warehouse: file:/warehouse
+
+  # 默认 Hive Catalog (可选)
+  # hive_catalog:
+  #   type: hive
+  #   hive-conf-dir: /opt/hive/conf 

@@ -205,3 +205,5 @@ yarn.lock
 # 自定义忽略（可根据需要添加）
 # custom-config.properties
 # local-settings.xml paimon-warehouse/
+paimon-warehouse/
+paimon-warehouse/

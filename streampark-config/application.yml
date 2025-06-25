@@ -1,0 +1,224 @@
+# ====================================================================
+# StreamPark 实时数仓项目配置
+# 项目名称: realtime-datawarehouse
+# 版本: v1.0.0
+# 环境: dev/test/prod
+# ====================================================================
+
+# 项目基础信息
+project:
+  name: realtime-datawarehouse
+  version: "1.0.0"
+  description: "基于Flink的实时数仓架构"
+  
+# 环境配置
+environments:
+  active: dev
+  
+  dev:
+    # MySQL 8.0 配置 - 基于Docker容器
+    mysql:
+      host: mysql
+      port: 3306
+      username: root
+      password: root123
+      database: ods
+      timezone: Asia/Shanghai
+      charset: utf8mb4
+      binlog:
+        format: ROW
+        image: FULL
+        
+    # Kafka 配置 - Bitnami Kafka
+    kafka:
+      bootstrap.servers: kafka:9092
+      topics:
+        user-stream: user_stream
+        user-behavior: user_behavior_stream
+      producer:
+        acks: all
+        retries: 3
+        batch.size: 16384
+        linger.ms: 1
+      consumer:
+        group.id: rt-dw-consumer-group
+        auto.offset.reset: earliest
+        enable.auto.commit: false
+        
+    # Paimon 0.8.2 配置
+    paimon:
+      warehouse.path: file:/warehouse
+      catalog.type: filesystem
+      
+    # Redis 6.2 配置 - 用于状态缓存
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+      timeout: 2000ms
+      
+    # StarRocks 3.5.0 配置
+    starrocks:
+      jdbc.url: jdbc:mysql://starrocks:9030
+      load.url: starrocks:8030;starrocks:8040
+      username: root
+      password: ""
+      database: analytics
+      stream.load:
+        version: v2
+        format: json
+        max.batch.rows: 100000
+        max.batch.size: 50MB
+      
+  prod:
+    # 生产环境配置
+    mysql:
+      host: ${MYSQL_HOST:prod-mysql}
+      port: ${MYSQL_PORT:3306}
+      username: ${MYSQL_USERNAME}
+      password: ${MYSQL_PASSWORD}
+      database: ${MYSQL_DATABASE:ods}
+      
+    kafka:
+      bootstrap.servers: ${KAFKA_SERVERS:prod-kafka1:9092,prod-kafka2:9092,prod-kafka3:9092}
+      topics:
+        user-stream: ${KAFKA_TOPIC_USER_STREAM:user_stream}
+        
+    paimon:
+      warehouse.path: ${PAIMON_WAREHOUSE:hdfs://namenode:8020/warehouse}
+      
+    starrocks:
+      jdbc.url: ${STARROCKS_JDBC_URL:jdbc:mysql://prod-starrocks:9030}
+      load.url: ${STARROCKS_LOAD_URL:prod-starrocks:8030}
+      username: ${STARROCKS_USERNAME:root}
+      password: ${STARROCKS_PASSWORD}
+      database: ${STARROCKS_DATABASE:analytics}
+
+# Flink 1.20.1 作业配置 - 企业级优化
+flink:
+  cluster:
+    rest.address: jobmanager
+    rest.port: 8081
+    sql-gateway.address: sql-gateway
+    sql-gateway.port: 8083
+    
+  jobs:
+    - name: rt-dw-cdc-ingestion
+      type: sql
+      parallelism: 2
+      checkpoint:
+        interval: 30s
+        mode: EXACTLY_ONCE
+        timeout: 10min
+        min-pause: 5s
+        max-concurrent: 1
+        storage: file:///opt/flink/checkpoints
+      resources:
+        taskmanager.memory.process.size: 2048m
+        jobmanager.memory.process.size: 1024m
+        taskmanager.numberOfTaskSlots: 8
+      state:
+        backend: rocksdb
+        backend.rocksdb.writebuffer.size: 64mb
+        ttl: 1d
+        
+    - name: rt-dw-ods-processing  
+      type: sql
+      parallelism: 4
+      checkpoint:
+        interval: 60s
+        mode: EXACTLY_ONCE
+        timeout: 10min
+        storage: file:///opt/flink/checkpoints
+      resources:
+        taskmanager.memory.process.size: 3072m
+        taskmanager.numberOfTaskSlots: 8
+      state:
+        backend: rocksdb
+        ttl: 3d
+        
+    - name: rt-dw-dwd-transform
+      type: sql
+      parallelism: 6
+      checkpoint:
+        interval: 60s
+        mode: EXACTLY_ONCE
+        timeout: 15min
+        storage: file:///opt/flink/checkpoints
+      resources:
+        taskmanager.memory.process.size: 4096m
+        taskmanager.numberOfTaskSlots: 8
+      state:
+        backend: rocksdb
+        ttl: 7d
+        
+    - name: rt-dw-dws-aggregate
+      type: sql  
+      parallelism: 4
+      checkpoint:
+        interval: 120s
+        mode: EXACTLY_ONCE
+        timeout: 10min
+        storage: file:///opt/flink/checkpoints
+      resources:
+        taskmanager.memory.process.size: 3072m
+        taskmanager.numberOfTaskSlots: 8
+      state:
+        backend: rocksdb
+        ttl: 1d
+        
+    - name: rt-dw-monitor
+      type: sql
+      parallelism: 1
+      checkpoint:
+        interval: 300s
+        mode: EXACTLY_ONCE
+        storage: file:///opt/flink/checkpoints
+      resources:
+        taskmanager.memory.process.size: 1024m
+        taskmanager.numberOfTaskSlots: 2
+
+# 监控告警配置
+monitoring:
+  metrics:
+    reporters: prometheus,slf4j
+    prometheus:
+      port: 9249
+      
+  alerts:
+    - name: job-failure
+      condition: job.status == 'FAILED'
+      action: webhook
+      webhook.url: ${ALERT_WEBHOOK_URL}
+      
+    - name: checkpoint-failure  
+      condition: checkpoint.failure.rate > 0.1
+      action: email
+      email.to: ${ALERT_EMAIL}
+      
+    - name: lag-too-high
+      condition: kafka.consumer.lag > 10000
+      action: slack
+      slack.channel: ${SLACK_CHANNEL}
+
+# 数据质量配置
+data-quality:
+  rules:
+    - table: ods.ods_user_raw
+      checks:
+        - type: not_null
+          columns: [id, name]
+        - type: unique
+          columns: [id]
+        - type: range
+          column: age
+          min: 0
+          max: 150
+          
+    - table: dwd.dwd_user
+      checks:
+        - type: not_null
+          columns: [id, name, gender]
+        - type: enum
+          column: gender
+          values: [男, 女, 未知] 

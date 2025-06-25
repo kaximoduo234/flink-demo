@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # 🚀 JobManager - 最小配置
+  jobmanager:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: jobmanager
+    ports:
+      - "8081:8081"
+      - "6123:6123"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 1
+        jobmanager.memory.process.size: 1g
+        jobmanager.memory.flink.size: 800m
+    volumes:
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+
+  # 🚀 TaskManager - 最小配置
+  taskmanager:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: taskmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 1
+        taskmanager.memory.process.size: 1g
+        taskmanager.memory.flink.size: 800m
+    volumes:
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+    networks:
+      - flink-network
+
+  # 🚀 SQL Gateway - 最小配置
+  sql-gateway:
+    build:
+      context: .
+      dockerfile: flink/Dockerfile
+      args:
+        - PAIMON_VERSION=1.0.0
+        - FLINK_VERSION=1.20.1
+      target: runtime
+    image: custom-flink:1.20.1-paimon-optimized
+    container_name: sql-gateway
+    command: ["bin/sql-gateway.sh", "start-foreground"]
+    ports:
+      - "8083:8083"
+    networks:
+      - flink-network
+    volumes:
+      - ./checkpoints:/opt/flink/checkpoints
+      - ./paimon-warehouse:/warehouse
+      - ./scripts:/opt/scripts:ro
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        sql-gateway.endpoint.rest.address: 0.0.0.0
+        sql-gateway.endpoint.rest.port: 8083
+        execution.target: remote
+        jobmanager.rpc.address: jobmanager
+        jobmanager.rpc.port: 6123
+        rest.address: jobmanager
+        rest.port: 8081
+        execution.runtime-mode: streaming
+        parallelism.default: 1
+
+networks:
+  flink-network:
+    driver: bridge 

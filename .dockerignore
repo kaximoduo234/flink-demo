@@ -1,30 +1,59 @@
-# 数据目录
-mysql-data/
-kafka-data/
-checkpoints/
-paimon-warehouse/
-doris/
-
-# 日志文件
-*.log
-logs/
-
-# 临时文件
-.tmp/
-*.tmp
-
 # Git 相关
-.git/
+.git
 .gitignore
+*.md
 
-# IDE 相关
-.vscode/
-.idea/
+# IDE 和编辑器
+.vscode
+.idea
+*.swp
+*.swo
+*~
 
-# Docker 相关
-.dockerignore
-docker-compose.yml
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
 
-# 其他
-node_modules/
-target/ 
+# 数据目录（避免误包含大文件）
+kafka-data/
+mysql-data/
+paimon-warehouse/
+starrocks-storage/
+checkpoints/
+
+# 备份文件
+*.backup
+*.bak
+flink-local.backup.*
+
+# 编译输出
+target/
+*.class
+
+# 压缩文件
+*.tar.gz
+*.tgz
+*.zip
+flink-*.tgz
+
+# 环境和配置
+.env
+env.template
+*.env.local
+
+# 测试和脚本文件
+test-*.sh
+*-test.sh
+quick-*.sh
+final-*.sh
+verify-*.sh
+validate-*.sh
+
+# 只保留必要的构建文件
+!flink-jars/
+!flink/Dockerfile
+!docker-compose.yml
+!pom.xml 
